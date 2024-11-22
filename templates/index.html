@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Pitch Multi-Agent System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <h1 class="text-center">Sales Pitch Multi-Agent System</h1>
+        <form id="sales-form" class="mt-4">
+            <div class="mb-3">
+                <label for="industry" class="form-label">Industry</label>
+                <input type="text" id="industry" class="form-control" placeholder="Enter industry, e.g., healthcare">
+            </div>
+            <div class="mb-3">
+                <label for="interest" class="form-label">Interest</label>
+                <input type="text" id="interest" class="form-control" placeholder="Enter interest, e.g., AI solutions">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Submit</button>
+        </form>
+
+        <div id="output" class="mt-5">
+            <h3>Response</h3>
+            
+            <!-- Section for displaying Pitch -->
+            <div class="mb-4">
+                <h4>Sales Pitch</h4>
+                <pre id="sales-pitch-output" class="border p-3 bg-white">Waiting for pitch...</pre>
+            </div>
+            
+            <!-- Section for displaying Customer Feedback -->
+            <div class="mb-4">
+                <h4>Customer Feedback</h4>
+                <pre id="customer-feedback-output" class="border p-3 bg-white">Waiting for feedback...</pre>
+            </div>
+            
+            <!-- Section for displaying General Response -->
+            <div class="mb-4">
+                <h4>Response</h4>
+                <pre id="response-output" class="border p-3 bg-white">Waiting for input...</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('sales-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Get values from input fields
+            const industry = document.getElementById('industry').value;
+            const interest = document.getElementById('interest').value;
+
+            // Create customer data JSON
+            const customerData = JSON.stringify({
+                industry: industry,
+                interest: interest
+            });
+
+            try {
+                // Send data to the server
+                const response = await fetch('/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: customerData
+                });
+
+                // Get the response and extract specific parts (pitch, feedback, response)
+                const data = await response.json();
+                
+                // Display the pitch, feedback, and response separately
+                document.getElementById('sales-pitch-output').textContent = data.pitch || 'No pitch generated.';
+                document.getElementById('customer-feedback-output').textContent = JSON.stringify(data.feedback, null, 2) || 'No feedback provided.';
+                document.getElementById('response-output').textContent = JSON.stringify(data.response, null, 2) || 'No response received.';
+            } catch (error) {
+                document.getElementById('response-output').textContent = 'Error: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>
